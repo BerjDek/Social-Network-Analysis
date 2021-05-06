@@ -1,4 +1,11 @@
 library(ergm)
+#ninety percent of social scientists are using this model (exponential random graph model) ERGM
+#gravity model can be used as well, it can be used to explain trade flows between countries
+#latent space model is more about to deduce the relative distance, it is not suggested to start from this model
+
+#ERGM also known as p* model, assumes that networks are created in a random way (which naturally it is not) so it studies how any
+#variables can effect this randomness, some of the problems with the model is that it can be difficult to calculate
+
 
 
 set.seed(0)
@@ -12,6 +19,9 @@ flomarriage # Let's look at the flomarriage network properties
 par(mfrow=c(1,2)) # Setup a 2 panel plot (for later)
 plot(flomarriage, main="Florentine Marriage", cex.main=0.8) # Plot the flomarriage network
 summary(flomarriage~edges) # Look at the $g(y)$ statistic for this model
+summary(flomarriage~edges + triangle) #gives us further information on transitivity
+summary(flomarriage~edges + triangle + degree(1)) # you can add more terms for more details
+
 
 flomodel.01 <- ergm(flomarriage~edges) # Estimate the model 
 summary(flomodel.01) # The fitted model object
@@ -36,8 +46,14 @@ summary(wealth) # summarize the distribution of wealth
 plot(flomarriage, vertex.cex=wealth/25, main="Florentine marriage by wealth", cex.main=0.8) # network plot with vertex size proportional to wealth
 summary(flomarriage~edges+nodecov('wealth')) 
 # observed statistics for the model
-flomodel.03 <- ergm(flomarriage~edges+nodecov('wealth'))
+flomodel.03 <- ergm(flomarriage~edges+nodecov('wealth'))  
+#nodecav is the to measure the "node covariate" basically 
+#saying if one node has more of an attribute it is more likely to have more connections
 summary(flomodel.03)
+
+flomodel.04 <- ergm(flomarriage~edges+degreepopularity)  
+summary(flomodel.04)
+
 
 ## ------------------------------------------------------------------------
 data(faux.mesa.high) 
@@ -115,6 +131,12 @@ library(tergm)
 data(samplk)
 ls()
 
+
+par(mfrow = c(1,3))
+plot(samplk1)
+plot(samplk1)
+plot(samplk1)
+
 samplk1 %v% "cloisterville"
 
 samp.ls <- list()
@@ -145,14 +167,58 @@ load("COREPER18.rda")
 
 # Create network without uk
 
+cp18 
+V(cp18)
+
+cp18_bx <- delete_vertices(cp18, v= c("UK"))  
+V(cp18); V(cp18_bx)
+
+
 # Plot the two networks
+par(mfrow = c(1,2))
+plot(cp18); plot(cp18_bx)
 
 # load network statistics
 
+node.df <- read.csv('node_statistics.csv')
+
 # check if names match
+
+V(cp18_bx)$name
+node.df$cty
+
+V(cp18_bx)$name == node.df$cty  #checking if the names match
 
 # calculate expected changes based on 2015 data
 
+names(node.df)
+V(cp18_bx)$d_degree <- node.df$dgr_post-node.df$dgr_pre
+V(cp18_bx)$d_degree
+
+V(cp18_bx)$d_close <- node.df$cls_post-node.df$cls_pre
+V(cp18_bx)$d_close
+
+V(cp18_bx)$d_between <- node.df$btw_post-node.df$btw_pre
+V(cp18_bx)$d_between
+
+cp18_bx
+
 # convert data into ergem object
+install.packages("intergraph")
+library(intergraph)
+cp18.eg <- asNetwork(cp18_bx)
+class(cp18.eg)
+cp18.eg
+
 
 # run ergm model
+
+library(ergm)
+
+plot(cp18.eg)
+
+fit0 <- ergm(cp18.eg ~ edges)
+summary(fit0)
+
+fit1 <- ergm(cp18.eg ~ edges + triangle)
+summary(fit1)
