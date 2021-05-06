@@ -1,11 +1,10 @@
-# install.packages("igraph")
-# install.packages("igraphdata")
-# install.packages("sand")
-
-# install.packages("network")
-# install.packages("sna")
-# install.packages("ergm")
-# install.packages("tergm")
+install.packages("igraph")
+ install.packages("igraphdata")
+ install.packages("sand")
+ install.packages("network")
+ install.packages("sna")
+ install.packages("ergm")
+ install.packages("tergm")
 
 
 ###################################################################################################
@@ -66,8 +65,12 @@ rm(list = ls())
 getwd()
 # setwd()
 
-brexit.df <- data.frame(read.csv("/Users/narisonghuhe/Desktop/SNA Workshop/brexit.csv",
+brexit.df <- data.frame(read.csv("C:/Users/U176055/OneDrive/PhD/Research Seminar's Phd/Methodology Worksho of Social Network Analysis/Social-Network-Analysis/brexit.csv",
                                  header = T))
+
+lm(policy ~ cls_d, data = brexit.df)
+summary(lm(policy ~ cls_d, data = brexit.df))
+
 
 # RStudio IDE
 
@@ -104,6 +107,14 @@ plot(g2)
 g2
 
 # A network of 3 -> 5, 6 -> 2, 1 -> 2, 1 -> 6, 5 -> 6
+
+gh <- graph(edges = c(,5,
+                      6,2,
+                      1,2,
+                      1,6,
+                      5,6),
+            n = 8)
+plot(gh)  
 
 
 g3 <- graph(c("Spain", "UK",
@@ -169,7 +180,7 @@ plot(zach, vertex.size=10, vertex.label=NA)
 
 rm(list = ls())
 
-load("C:/Users/huhen/Google Cloud/[Lyx]/Network Analysis Tutorial/COREPER15.rda")
+load("COREPER15.rda")
 
 class(cp15)
 cp15
