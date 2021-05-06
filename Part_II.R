@@ -149,6 +149,7 @@ hist(d.yeast,col="blue",
      xlab="Degree", ylab="Frequency",
      main="Degree Distribution")
 
+
 dd.yeast <- degree.distribution(yeast)
 d <- 1:max(d.yeast)-1
 ind <- (dd.yeast != 0)
@@ -210,7 +211,9 @@ yeast.gc <- decompose.graph(yeast)[[1]]
 
 average.path.length(yeast.gc)
 
-diameter(yeast.gc)
+diameter(yeast.gc)   #longest distance between nodes
+
+average.path.length(karate)  #mean distance
 
 
 # Hierarchical Clustering #-------------------------------#
@@ -220,6 +223,10 @@ length(kc); sizes(kc)
 membership(kc)
 
 plot(kc, karate)
+
+install.packages('ape')
+library(ape)
+
 dendPlot(kc, mode = "phylo")
 
 
@@ -227,9 +234,10 @@ wc <- cluster_walktrap(karate)
 membership(wc)
 
 plot(wc, karate)
+
 dendPlot(wc, mode = "phylo")
 
-cb <- cohesive.blocks(karate)
+cb <- cohesive.blocks(karate)  
 
 cb$blocks
 cb$block.cohesion
@@ -239,6 +247,8 @@ cohesion(cb)
 
 plot(cb, karate)
 
+#cohesive block tried to identify the core community, 
+
 rm(list = ls())
 
 
@@ -247,6 +257,9 @@ rm(list = ls())
 # Case Study: Brexit                                                                             #
 #                                                                                                 #
 ###################################################################################################
+
+
+
 
 library(igraph)
 
@@ -261,26 +274,50 @@ rm(list = ls())
 
 # Loading data #------------------------------------------#
 
+
 # read csv edgelist data
+raw15 <- read.csv("CP15_edgelist.csv", header = F)
+class(raw15)
 
 
 # convert data into matrix
-
+raw15 <- as.matrix(raw15)   #igraph can only works with matrix'es so we have to convert the dataframe to a matrix
+class(raw15)
 
 # create igraph object
 # ?graph_from_edgelist
+cp15 <- graph_from_edgelist(raw15, directed = F)
+plot(cp15)
+cp15
+
+cp15_alt <- graph_from_edgelist(
+  as.matrix(
+    read.csv("CP15_edgelist.csv", header = F
+             )
+  ),directed = F)                                # same done in a single line
 
 rm(list = ls())
 
 
 # read csv adjacent matrix data
-
+raw15 <- read.csv("CP15_adj.csv")
+class(raw15)
 
 # convert data into matrix
-
+raw15 <- raw15[,-1]  #we need to remove the first column  to make it into a matrix since this data has a column and row names
+raw15 <- as.matrix(raw15)
+rownames(raw15) <- colnames(raw15)
+class(raw15)
 
 # create igraph object
-# ?graph_from_edgelist
+# ?graph_from_adjacency_matrix
+
+cp15 <- graph_from_adjacency_matrix(raw15, mode = 'undirected')
+
+plot(cp15)
+
+
+
 
 rm(list = ls())
 
@@ -290,18 +327,47 @@ rm(list = ls())
 load("COREPER15.rda")
 
 # degree
+
+dgr <- degree(cp15)
+dgr
+
 # closeness
+cls <- closeness(cp15)
+cls
+
 # betweenness
+btw <- betweenness(cp15)
+btw
+
+
 # transitivity
+trn <- transitivity(cp15, type = "local")
+trn
+
 
 # graph density
+graph.density(cp15)
+
+
+
 # transitivity
+transitivity()
+
 
 # diameter
+diameter(cp15)
+
 # average path length
+average.path.length(cp15)
+
+network.stat <- data.frame(cbind(dgr,cls,btw,trn))   #made the info into a data frame so its easier to see
+write.csv(network.stat, file = "cloudyweathernet.csv")
 
 
-# Estimate Brexit impact #------------------------------- #
+ # Estimate Brexit impact #------------------------------- #
+# to predict what the exit of uk willl do is we create a modified chart where we take out the node representing UK
+
+
 
 cp15.bx <- delete_vertices(cp15, v = c("UK"))
 
